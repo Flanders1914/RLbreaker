@@ -14,8 +14,8 @@ from sentence_transformers import SentenceTransformer, util
 
 random.seed(100)
 
-all_questions = pd.read_csv("datasets/advbench.csv")["question"].tolist()
-unalign_responses = pd.read_csv("datasets/advbench.csv")["response"].tolist()
+all_questions = pd.read_csv("./datasets/processed_unalign.csv")["question"].tolist()
+unalign_responses = pd.read_csv("./datasets/processed_unalign.csv")["response"].tolist()
 embedder = SentenceTransformer("BAAI/bge-large-en-v1.5", device="cuda:0")
 
 test_prefixes = [
@@ -489,7 +489,7 @@ def mutate_single(
     energy = status.energy
     mutant = mutate_operator(seed, mutate, status.seed_text, status.initial_seed)
     if TOK == None:  # openai model
-        if "gpt" in MODEL:
+        if "gpt" in MODEL and "gpt-oss" not in MODEL:
             mutate_results = openai_request(mutant, 1, energy, model=MODEL)  # temp = 1
         else:
             mutate_results = deepinfra_request(
@@ -546,7 +546,7 @@ def execute(
 
     def process_input(inputs, MODEL_TARGET, TOK_TARGET, model_path, data, args):
         if TOK_TARGET == None:
-            if "gpt" not in MODEL_TARGET:
+            if "gpt" not in MODEL_TARGET or "gpt-oss" in MODEL_TARGET: # use deepinfra API for gpt-oss
                 if args.defense == "Rephrase":
                     with concurrent.futures.ThreadPoolExecutor() as executor:
                         futures = {
@@ -612,16 +612,16 @@ def execute(
             success_index = []
             for idx, q in enumerate(status.questions):
                 usr_prompt = judge_prompt.format(question=q, response=data[idx])
-                # result = openai_request(usr_prompt, model='gpt-4-turbo-2024-04-09').choices[0].message.content
-                result = (
-                    deepinfra_request(
-                        usr_prompt,
-                        model="microsoft/WizardLM-2-8x22B",
-                        api_key=args.deepinfra_key,
-                    )
-                    .choices[0]
-                    .message.content
-                )
+                result = openai_request(usr_prompt, model='gpt-4-turbo-2024-04-09').choices[0].message.content
+                # result = (
+                #     deepinfra_request(
+                #         usr_prompt,
+                #         model="microsoft/WizardLM-2-8x22B",
+                #         api_key=args.deepinfra_key,
+                #     )
+                #     .choices[0]
+                #     .message.content
+                # )
                 if "1" in result and "0" not in result:
                     print(f"Judge analysis: {result} \n")
                     print(f"Target LLM response {data[idx]}\n")

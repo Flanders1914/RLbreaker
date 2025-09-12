@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 import torch
 import numpy as np
 from copy import deepcopy
@@ -7,7 +7,6 @@ from typing import Any, Callable, List, Optional, Sequence, Type, Union
 
 from stable_baselines3.common.vec_env import VecEnvWrapper
 from stable_baselines3.common.vec_env.util import (
-    copy_obs_dict,
     dict_to_obs,
     obs_space_info,
 )
@@ -189,7 +188,7 @@ class DummyVecEnv1(VecEnv):
                 self.buf_obs[key] = obs[key]
 
     def _obs_from_buf(self) -> VecEnvObs:
-        return dict_to_obs(self.observation_space, copy_obs_dict(self.buf_obs))
+        return dict_to_obs(self.observation_space, deepcopy(self.buf_obs))
 
     def get_attr(self, attr_name: str, indices: VecEnvIndices = None) -> List[Any]:
         """Return attribute from vectorized environment (see base class)."""

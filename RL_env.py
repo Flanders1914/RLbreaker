@@ -1,10 +1,10 @@
 import os
-import gym
+import gymnasium as gym
 import torch
 import copy
 import numpy as np
 import pandas as pd
-from gym import spaces
+from gymnasium import spaces
 from sentence_transformers import SentenceTransformer
 
 from utils import *
@@ -21,14 +21,15 @@ class MutatorSelect(gym.Env):
         )
         if args.datasets == "advbench":
             print(f"using advbench")
-            question_path = "./datasets/questions/advbench_questions.csv"
             if eval:
-                self.questions_pool = pd.read_csv(question_path)["text"].tolist()[200:]
+                question_path = "./datasets/questions/processed_unalign_test_questions.csv"
+                self.questions_pool = pd.read_csv(question_path)["text"].tolist()
             else:
-                self.questions_pool = pd.read_csv(question_path)["text"].tolist()[:200]
+                question_path = "./datasets/questions/processed_unalign_train_questions.csv"
+                self.questions_pool = pd.read_csv(question_path)["text"].tolist()
         else:
-            print(f"using max50")
-            question_path = "./datasets/questions/most_harmful_questions.csv"
+            print(f"using val")
+            question_path = "./datasets/questions/processed_unalign_val_questions.csv"
             self.questions_pool = pd.read_csv(question_path)["text"].tolist()
         if eval:
             print(f"using top {args.K} training generated templates!")

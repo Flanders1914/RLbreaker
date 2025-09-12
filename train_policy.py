@@ -113,7 +113,7 @@ def main():
                 if "episode" in info.keys():
                     episode_rewards.append(info["episode"]["r"])
             if done[0]:
-                episode_rewards.append(info["episode_r"])
+                episode_rewards.append(float(infos[0]["episode_r"].max()))
 
             if "stop" in infos[0].keys():
                 break
@@ -137,6 +137,11 @@ def main():
             print("finished!")
             end = time.time()
             print(f"total running time: {end-start}\n")
+            save_path = os.path.join(args.save_dir, args.algo)
+            try:
+                os.makedirs(save_path)
+            except OSError:
+                pass
             torch.save(
                 [actor_critic, getattr(utils.get_vec_normalize(envs), "obs_rms", None)],
                 os.path.join(save_path, args.env_name + "_final.pt"),
@@ -221,5 +226,5 @@ def main():
 
 
 if __name__ == "__main__":
-    torch.multiprocessing.set_start_method("spawn")
+    torch.multiprocessing.set_start_method("spawn", force=True)
     main()

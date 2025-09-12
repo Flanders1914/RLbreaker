@@ -60,7 +60,7 @@ def replace_template(test_question, prompt):
         return False
     
 def execute_query(args, mutant, MODEL, TOK):
-    if 'gpt' in args.model_path:
+    if 'gpt' in args.model_path and 'gpt-oss' not in args.model_path:
         for _ in range(10):
             try:
                 response = openai.ChatCompletion.create(

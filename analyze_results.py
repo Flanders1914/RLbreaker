@@ -22,8 +22,8 @@ if __name__ == '__main__':
     device = torch.device("cuda:{}".format(args.cuda_id))
     responses = pd.read_csv(args.file_path)['response'].tolist()
     all_questions = pd.read_csv(args.file_path)['question'].tolist()
-    unalign_responses = pd.read_csv("datasets/question_unalign_res.csv")['response'].tolist()
-    unalign_responses_q = pd.read_csv("datasets/question_unalign_res.csv")['question'].tolist()
+    unalign_responses = pd.read_csv("datasets/processed_unalign.csv")['response'].tolist()
+    unalign_responses_q = pd.read_csv("datasets/processed_unalign.csv")['question'].tolist()
     embedder = SentenceTransformer('BAAI/bge-large-en-v1.5', device=device)
     # keyword / cosine similarity / gpt-judge
     keyword_asr = []

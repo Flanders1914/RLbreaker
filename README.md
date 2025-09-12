@@ -67,7 +67,7 @@ python test_policy.py \
 datasets                            # data directory
 ├── prompts                         # initial jailbreaking templates
 ├── questions                       # harmful questions
-├── question_unalign_res.csv        # harmful questions and unaligned responses
+├── advbench.csv                    # harmful questions and unaligned responses
 a2c_ppo_acktr
 ├── algo                            # implementation of different training algorithms
 ├── models.py                       # different RL agent
