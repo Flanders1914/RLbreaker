@@ -612,7 +612,7 @@ def execute(
             success_index = []
             for idx, q in enumerate(status.questions):
                 usr_prompt = judge_prompt.format(question=q, response=data[idx])
-                result = openai_request(usr_prompt, model='gpt-4-turbo-2024-04-09').choices[0].message.content
+                result = openai_request(usr_prompt, model='gpt-4o').choices[0].message.content
                 # result = (
                 #     deepinfra_request(
                 #         usr_prompt,
