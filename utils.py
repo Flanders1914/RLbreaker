@@ -332,8 +332,9 @@ def check_with_unaligned(embedder, response1, response2):
 
 def openai_request(prompt, temperature=0, n=1, model="gpt-3.5-turbo"):
     response = "Sorry, I cannot help with this request. The system is busy now."
-    max_trial = 10
+    max_trial = 20
     for i in range(max_trial):
+        time.sleep(0.2)
         try:
             response = openai.chat.completions.create(
                 model=model,
@@ -347,8 +348,12 @@ def openai_request(prompt, temperature=0, n=1, model="gpt-3.5-turbo"):
             )
             break
         except Exception as e:
-            print("Error is: ", e)
-            time.sleep(10)
+            print("OpenAI API error: ", e)
+            print("trial:", i+1, " Sleeping for ", 10*(i+1), " seconds")
+            if i == 4:
+                print("prompt:\n", prompt)
+            print("-" * 100+ "\n")
+            time.sleep(10*(i+1))
             continue
     if response == "Sorry, I cannot help with this request. The system is busy now.":
         print("OpenAI API is busy now. Please try again later.")
@@ -358,7 +363,8 @@ def openai_request(prompt, temperature=0, n=1, model="gpt-3.5-turbo"):
 def deepinfra_request(prompt, model, api_key):
     response = "Sorry, I cannot help with this request. The system is busy now."
     max_trial = 10
-    for _ in range(max_trial):
+    for i in range(max_trial):
+        time.sleep(0.2)
         try:
             openai = OpenAI(
                 api_key=api_key,
@@ -377,11 +383,15 @@ def deepinfra_request(prompt, model, api_key):
                 )
             break
         except Exception as e:
-            print("error: ", e)
-            time.sleep(10)
+            print("Deepinfra API error: ", e)
+            print("trial:", i+1, " Sleeping for ", 10*(i+1), " seconds")
+            if i == 4:
+                print("prompt:\n", prompt)
+            print("-" * 100+ "\n")
+            time.sleep(10*(i+1))
             continue
     if response == "Sorry, I cannot help with this request. The system is busy now.":
-        print("OpenAI API is busy now. Please try again later.")
+        print("Something wrong with the Deepinfra API. Please try again later.")
     return response
 
 
@@ -649,6 +659,9 @@ def execute(
         else:
             success_index = []
             for k, res in enumerate(data):
+                # if the response is None, set it to a valid response to avoid error
+                if res is None:
+                    res = "Sorry, I cannot help with this request."
                 embeddings_1 = embedder.encode(
                     res,
                     normalize_embeddings=True,

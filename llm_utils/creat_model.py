@@ -19,7 +19,7 @@ def create_model(args, model_path):
 
 
 def create_model_and_tok(args, model_path, target=False):
-    openai_model_list = ['meta-llama/Llama-3.2-11B-Vision-Instruct','Qwen/Qwen3-14B','openai/gpt-oss-20b','google/gemini-2.5-flash','gpt-4o-mini', 'gpt-4o-2024-05-13','meta-llama/Meta-Llama-3-8B-Instruct', 'meta-llama/Llama-2-70b-chat-hf','mistralai/Mixtral-8x7B-Instruct-v0.1', 'mistralai/Mixtral-8x22B-Instruct-v0.1', 'gpt-3.5-turbo-1106','gpt-3.5-turbo-0613', 'gpt-3.5-turbo', 'gpt-3.5-turbo-0301']
+    openai_model_list = ['meta-llama/Llama-3.2-11B-Vision-Instruct','Qwen/Qwen3-14B','openai/gpt-oss-20b','google/gemini-2.5-flash','gpt-4o-mini', 'gpt-4o-2024-05-13','meta-llama/Meta-Llama-3-8B-Instruct', 'meta-llama/Llama-2-70b-chat-hf','mistralai/Mixtral-8x7B-Instruct-v0.1', 'mistralai/Mixtral-8x22B-Instruct-v0.1', 'gpt-3.5-turbo-1106','gpt-3.5-turbo-0613', 'gpt-3.5-turbo', 'gpt-3.5-turbo-0301', 'gpt-4o']
    
     if model_path in openai_model_list:
         MODEL = model_path
