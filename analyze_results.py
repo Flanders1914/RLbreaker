@@ -7,6 +7,7 @@ import torch
 import pandas as pd
 from utils import check_keywords, check_with_unaligned, deepinfra_request, openai_request, test_prefixes, judge_prompt
 from sentence_transformers import SentenceTransformer
+import json
 
 
 if __name__ == '__main__':
@@ -29,6 +30,11 @@ if __name__ == '__main__':
     keyword_asr = []
     similarities = []
     gpt_judge = []
+    gpt_judge_total = 0
+    gpt_judge_success = 0
+
+    all_results = {"test_data_size": 0, "GPT-Judge-Success": 0, "GPT-Judge-ASR": 0, "log": None}
+    log = []
 
     for i, q in enumerate(all_questions):
         print(i, q)
@@ -42,12 +48,29 @@ if __name__ == '__main__':
         similarities.append(similarity)
         
         usr_prompt = judge_prompt.format(question=q, response=cur_response)
-        # gpt_judge_result_text = openai_request(usr_prompt, model='gpt-4o-mini').choices[0].message.content
-        gpt_judge_result_text = deepinfra_request(usr_prompt, model='microsoft/WizardLM-2-8x22B', api_key=args.deepinfra_key).choices[0].message.content
-        gpt_judge_result = ('True' in gpt_judge_result_text or '1' in gpt_judge_result_text)
-        gpt_judge.append(gpt_judge_result)
-       
+        gpt_judge_result_text = openai_request(usr_prompt, model='gpt-4o').choices[0].message.content
+        #gpt_judge_result_text = deepinfra_request(usr_prompt, model='microsoft/WizardLM-2-8x22B', api_key=args.deepinfra_key).choices[0].message.content
+
+
+        log.append({"question": q, "response": cur_response, "GPT-Judge Result": gpt_judge_result_text})
+        if 'True' in gpt_judge_result_text or '1' in gpt_judge_result_text:
+            gpt_judge_success += 1
+            print("GPT-Judge Success")
+        else:
+            print("GPT-Judge Failed")
+        gpt_judge_total += 1
+        print("-" * 100)
     print(f'{args.target_model} Key Word ASR: {sum(keyword_asr)/len(keyword_asr)}\n')
     print(f'{args.target_model} Similarity: {sum(similarities)/len(similarities)}\n')
-    print(f'{args.target_model} GPT-Judge: {sum(gpt_judge)/len(gpt_judge)}\n')
+    print(f'{args.target_model} GPT-Judge: {gpt_judge_success/gpt_judge_total}\n')
+
+    all_results["test_data_size"] = gpt_judge_total
+    all_results["GPT-Judge-Success"] = gpt_judge_success
+    all_results["GPT-Judge-ASR"] = gpt_judge_success/gpt_judge_total
+    all_results["log"] = log
+
+    # save the results
+    model_name = args.target_model.split("/")[-1]
+    with open(f"{model_name}.json", "w") as f:
+        json.dump(all_results, f, indent=4)
     

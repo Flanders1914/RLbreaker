@@ -98,6 +98,8 @@ def main():
     parser.add_argument('--defense', type=str, default="none", help='defense method')
     parser.add_argument('--K', type=int, default=200, help='top k templates from training')
     parser.add_argument('--source_model', type=str, default=None)
+    parser.add_argument('--max_attempts_per_question', type=int, default=50, 
+                       help='Maximum attempts per question during testing (default: 50)')
     add_model_args(parser)
     args = parser.parse_args()
     openai.api_key = args.openai_key

@@ -2,3 +2,4 @@ __pycache__/
 a2c_ppo_acktr/__pycache__/
 llm_utils/__pycache__/
 *.sh
+test.py

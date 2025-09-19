@@ -80,6 +80,15 @@ class MutatorSelect(gym.Env):
             self.target_responses = []
             self.responses_csv_path = f"{directory_path}/RL_{self.args_target.model_path.split('/')[-1]}_{self.args.index}_responses_{self.args.defense}.csv"
             print(f"using defense: {self.args.defense}")
+            
+            # max attempts per question
+            self.max_attempts_per_question = getattr(args, 'max_attempts_per_question', 50)
+            # maintain the number of attempts for each question
+            self.question_attempts = {}
+            # record the last output of the question that reached the maximum number of attempts
+            self.max_attempt_responses = {}
+            print(f"Setting max attempts per question: {self.max_attempts_per_question}")
+            
             with open(self.responses_csv_path, "w", newline="") as outfile:
                 writer = csv.writer(outfile)
                 writer.writerow(["question", "response", "prompt"])
@@ -170,22 +179,57 @@ class MutatorSelect(gym.Env):
                 if self.eval:
                     remove_idx = []
                     for idx, result in enumerate(attack_results):
-                        if result == 1:
+                        current_question = self.status.questions[idx]
+                        
+                        # initialize the counter (if not already)
+                        if current_question not in self.question_attempts:
+                            self.question_attempts[current_question] = 0
+                        
+                        # add the number of attempts
+                        self.question_attempts[current_question] += 1
+                        
+                        if result == 1:  # successful jailbreak
                             print(len(attack_results), len(self.status.questions))
-                            print(f"removing question {self.status.questions[idx]}")
+                            print(f"removing question {current_question} (successful after {self.question_attempts[current_question]} attempts)")
                             remove_idx.append(idx)
                             self.terminate[i] = True
                             try:
-                                self.questions_pool.remove(self.status.questions[idx])
+                                self.questions_pool.remove(current_question)
                                 self.target_responses.append(data[idx])
                                 append_to_csv(
                                     [
-                                        self.status.questions[idx],
+                                        current_question,
                                         data[idx],
                                         complete_prompts[idx],
                                     ],
                                     self.responses_csv_path,
                                 )
+                                # clean the counter
+                                if current_question in self.question_attempts:
+                                    del self.question_attempts[current_question]
+                            except:
+                                pass
+                        elif self.question_attempts[current_question] >= self.max_attempts_per_question:
+                            # reached the maximum number of attempts, record the last output
+                            print(f"removing question {current_question} (max attempts {self.max_attempts_per_question} reached)")
+                            remove_idx.append(idx)
+                            self.terminate[i] = True
+                            try:
+                                self.questions_pool.remove(current_question)
+                                # record the last output of the question that reached the maximum number of attempts
+                                self.target_responses.append(data[idx])
+                                self.max_attempt_responses[current_question] = data[idx]
+                                append_to_csv(
+                                    [
+                                        current_question,
+                                        data[idx],
+                                        complete_prompts[idx],
+                                    ],
+                                    self.responses_csv_path,
+                                )
+                                # clean the counter
+                                if current_question in self.question_attempts:
+                                    del self.question_attempts[current_question]
                             except:
                                 pass
                     for idx in remove_idx:
