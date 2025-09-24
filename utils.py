@@ -362,7 +362,7 @@ def openai_request(prompt, temperature=0, n=1, model="gpt-3.5-turbo"):
 
 def deepinfra_request(prompt, model, api_key):
     response = "Sorry, I cannot help with this request. The system is busy now."
-    max_trial = 10
+    max_trial = 5
     for i in range(max_trial):
         time.sleep(0.2)
         try:
@@ -388,7 +388,7 @@ def deepinfra_request(prompt, model, api_key):
             if i == 4:
                 print("prompt:\n", prompt)
             print("-" * 100+ "\n")
-            time.sleep(10*(i+1))
+            time.sleep(0.2*(i+1))
             continue
     if response == "Sorry, I cannot help with this request. The system is busy now.":
         print("Something wrong with the Deepinfra API. Please try again later.")

@@ -91,7 +91,7 @@ class MutatorSelect(gym.Env):
             
             with open(self.responses_csv_path, "w", newline="") as outfile:
                 writer = csv.writer(outfile)
-                writer.writerow(["question", "response", "prompt"])
+                writer.writerow(["question", "response", "prompt", "attempts"])
         else:
             directory_path = "datasets/prompts_generated"
             if not os.path.exists(directory_path):
@@ -201,6 +201,7 @@ class MutatorSelect(gym.Env):
                                         current_question,
                                         data[idx],
                                         complete_prompts[idx],
+                                        self.question_attempts[current_question],
                                     ],
                                     self.responses_csv_path,
                                 )
@@ -224,6 +225,7 @@ class MutatorSelect(gym.Env):
                                         current_question,
                                         data[idx],
                                         complete_prompts[idx],
+                                        self.question_attempts[current_question],
                                     ],
                                     self.responses_csv_path,
                                 )
